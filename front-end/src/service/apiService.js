@@ -73,10 +73,10 @@ const apiService = {
     // TODO: 로그인 API
     // POST /auth/login
     // body: { username, password }
-    login: async (username, password) => {
+    login: async (userEmail, password) => {
         // TODO: API 호출을 완성하세요
         const res = await api.post(`/auth/login`, {
-            userName: username,
+            userEmail: userEmail,
             userPassword: password
         });
 
