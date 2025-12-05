@@ -3,13 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../service/apiService';
 
 const LoginPage = () => {
-    // TODO: username state를 선언하세요
-
-    // TODO: password state를 선언하세요
-
-    // TODO: loading state를 선언하세요
-
-    // TODO: useNavigate를 사용하여 navigate 함수를 가져오세요
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     // TODO: handleLogin 함수를 작성하세요
@@ -20,7 +16,8 @@ const LoginPage = () => {
     // 5. 실패 시: alert로 에러 메시지 표시
     // 6. finally: loading을 false로 설정
     const handleLogin = async () => {
-        // TODO: 함수를 완성하세요
+         const response = await apiService.login(username, password);
+
     };
 
     // TODO: Enter 키 입력 시 handleLogin 호출하는 함수 작성
@@ -40,6 +37,15 @@ const LoginPage = () => {
                         {/* value: username */}
                         {/* onChange: setUsername */}
                         {/* onKeyPress: handleKeyPress */}
+                        <input
+                            className="login-input"
+                            type="text"
+                            placeholder="전화번호, 사용자 이름 또는 이메일"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            autoComplete="text"
+                        />
 
                         {/* TODO: 비밀번호 입력 input 작성 */}
                         {/* type: "password" */}
@@ -47,11 +53,31 @@ const LoginPage = () => {
                         {/* value: password */}
                         {/* onChange: setPassword */}
                         {/* onKeyPress: handleKeyPress */}
+                        <input
+                            className="login-input"
+                            type="password"
+                            placeholder="비밀번호"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            autoComplete="text"
+                        />
+
 
                         {/* TODO: 로그인 버튼 작성 */}
                         {/* onClick: handleLogin */}
                         {/* disabled: loading */}
                         {/* 버튼 텍스트: loading이면 "로그인 중...", 아니면 "로그인" */}
+                        <button className="login-button"
+                                onClick={handleLogin}
+                                disabled={loading}
+                                >
+                            {loading ? (<div style={{opacity: '0.7', cursor: 'not-allowed'}}>
+                                        로그인 중...
+                                    </div>
+                                ) :
+                                '로그인'}
+                        </button>
                     </div>
 
                     <div className="divider">
