@@ -2,14 +2,13 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:9000/api';
 
-// TODO: axios 인스턴스를 생성하세요
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     }
 })
-// TODO: 요청 인터셉터를 설정하세요
+
 // 모든 요청에 JWT 토큰 추가
 // 사용자의 요청을 가로채다 = interceptor
 api.interceptors.request.use(
@@ -25,7 +24,6 @@ api.interceptors.request.use(
     }
 )
 
-// TODO: 응답 인터셉터를 설정하세요
 // 401 에러가 발생하면 localStorage를 비우고 /login으로 이동
 /*
 401 : 인증 안됨 : 로그인 안했거나, 토큰 만료
@@ -55,11 +53,9 @@ api.interceptors.response.use(
 const apiService = {
     // ===== 인증 API =====
 
-    // TODO: 회원가입 API
     // POST /auth/signup
     // body: { username, email, password, fullName }
     signup: async (username, email, password, fullName) => {
-        // TODO: API 호출을 완성하세요
         const response = await api.post(`/auth/signup`, {
             userName: username,
             userEmail: email,
@@ -70,11 +66,9 @@ const apiService = {
 
     },
 
-    // TODO: 로그인 API
     // POST /auth/login
     // body: { username, password }
     login: async (userEmail, password) => {
-        // TODO: API 호출을 완성하세요
         const res = await api.post(`/auth/login`, {
             userEmail: userEmail,
             userPassword: password
@@ -114,6 +108,12 @@ const apiService = {
     // body: { postImage, postCaption, postLocation }
     createPost: async (postImage, postCaption, postLocation) => {
         // TODO: API 호출을 완성하세요
+        const res = await api.post("/posts", {
+            postImage: postImage,
+            postCaption: postCaption,
+            postLocation: postLocation
+        });
+        return res.data;
     },
 
     // TODO: 게시물 삭제
