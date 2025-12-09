@@ -7,19 +7,17 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-
-
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    // profile.upload.path
-    @Value("${file.upload.path}")
-    private String fileUploadPath;
 
-    @Value("${file.product.upload.path}")
-    private String productUploadPath;
+    @Value("${file.profile.upload.path}")
+    private String profileUploadPath;
 
-    @Value("${file.board.upload.path}")
-    private String boardUploadPath;
+    @Value("${file.story.upload.path}")
+    private String storyUploadPath;
+
+    @Value("${file.post.upload.path}")
+    private String postUploadPath;
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -43,21 +41,16 @@ public class WebConfig implements WebMvcConfigurer {
         };
     }
 
-    // 프로필 이미지 정적 리소스 매핑 추가
-    // ctrl + o -> override
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/profile_images/**")
-                .addResourceLocations("file:"+fileUploadPath+"/"); // 폴더명칭뒤에 바로 이미지명칭 붙어서 에러 발생
+                .addResourceLocations("file:"+profileUploadPath+"/");
 
+        registry.addResourceHandler("/story_images/**")
+                .addResourceLocations("file:"+storyUploadPath + "/");
 
-        registry.addResourceHandler("/product_images/**")
-                .addResourceLocations("file:"+productUploadPath + "/"); // 폴더명칭뒤에 바로 이미지명칭 붙어서 에러 발생
-
-
-        registry.addResourceHandler("/board_images/**")
-                .addResourceLocations("file:"+boardUploadPath + "/"); // 폴더명칭뒤에 바로 이미지명칭 붙어서 에러 발생
+        registry.addResourceHandler("/post_images/**")
+                .addResourceLocations("file:"+postUploadPath + "/");
 
     }
 }
