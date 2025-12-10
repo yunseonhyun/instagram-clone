@@ -99,9 +99,9 @@ const apiService = {
 
     // TODO: 특정 게시물 조회
     // GET /posts/:postId
-    getPost: async (postId) => {
+    getPost: async (userId) => {
         // TODO: API 호출을 완성하세요
-        const res = await api.get('/post/' + postId);
+        const res = await api.get('/post' + userId);
         return res.data;
     },
 
@@ -167,6 +167,12 @@ const apiService = {
 
     getStories: async () => {
         const res = await api.get('/stories');
+        return res.data;
+    },
+
+    getStoriesByStoryId: async (storyId) => {
+        // TODO: API 호출을 완성하세요
+        const res = await api.get('/stories/' + storyId);
         return res.data;
     },
 

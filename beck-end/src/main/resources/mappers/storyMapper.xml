@@ -20,6 +20,12 @@
         where user_id = #{userId}
     </select>
 
+    <select id="selectStoriesByStoryId" resultType="Story" parameterType="int">
+        select story_id, user_id, story_image, created_at, expires_at, user_name, user_avatar
+        from active_stories_view
+        where story_id = #{storyId}
+    </select>
+
 
     <update id="updateStoryImage" parameterType="Story">
         UPDATE stories

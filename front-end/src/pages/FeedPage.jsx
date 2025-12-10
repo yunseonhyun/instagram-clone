@@ -2,85 +2,55 @@ import React, {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
 import {Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Home, PlusSquare, Film, User} from 'lucide-react';
+import Header from "../components/Header";
 
 const FeedPage = () => {
-    // TODO: posts state를 선언하세요 (초기값: [])
     const [posts, setPosts] = useState([]);
 
-    // TODO: stories state를 선언하세요 (초기값: [])
     const [stories, setStories] = useState([]);
 
-    // TODO: loading state를 선언하세요 (초기값: true)
     const [loading, setLoading] = useState(false);
 
-    // TODO: useNavigate를 사용하여 navigate 함수를 가져오세요
     const navigate = useNavigate();
-    // TODO: useEffect를 사용하여 컴포넌트 마운트 시 loadFeedData 호출
     useEffect(() => {
-       loadFeedData();
+        loadFeedData();
+    },[]);
 
-    }, []);
-
-
-    // TODO: loadFeedData 함수를 작성하세요
-    // 1. try-catch 사용
-    // 2. apiService.getPosts()와 apiService.getStories()를 Promise.all로 동시 호출
-    // 3. 받아온 데이터로 posts와 stories state 업데이트
-    // 4. catch: 에러 처리 (console.error, alert)
-    // 5. finally: loading을 false로 설정
     const loadFeedData = async () => {
-        // TODO: 함수를 완성하세요
         setLoading(true);
-        try {
-            const postContent = await apiService.getPosts();
-            setPosts(postContent);
 
+        try {
+            const postsData = await apiService.getPosts();
+            setPosts(postsData);
         } catch (err) {
-            alert('포스트 불러오는중 오류 발생');
+            alert("포스트 피드를 불러오는데 실패했습니다.")
         } finally {
             setLoading(false);
         }
 
         try {
-            const storiesContent = await apiService.getStories();
-            setStories(storiesContent);
-
+            const storiesData = await apiService.getStories();
+            setStories(storiesData);
         } catch (err) {
-            alert('스토리 불러오는중 오류 발생');
+            alert("스토리 피드를 불러오는데 실패했습니다.")
         } finally {
             setLoading(false);
         }
     };
 
-
-    // TODO: toggleLike 함수를 작성하세요
-    // 1. postId와 isLiked를 파라미터로 받음
-    // 2. isLiked가 true면 removeLike, false면 addLike 호출
-    // 3. 완료 후 getPosts()를 다시 호출하여 목록 새로고침
-    // 4. catch: 에러 처리
     const toggleLike = async (postId, isLiked) => {
-        // TODO: 함수를 완성하세요
         try {
-            isLiked ? await apiService.removeLike() : await apiService.addLike();
+            if(isLiked) await  apiService.removeLike(postId);
+            else await  apiService.addLike(postId);
 
-            apiService.getPosts();
+            const postsData = await apiService.getPosts();
+            setPosts(postsData);
         } catch (err) {
-            console.error(err);
+            alert("좋아요 처리에 실패했습니다.");
         }
     };
 
-    // TODO: handleLogout 함수를 작성하세요
-    // 1. window.confirm으로 로그아웃 확인
-    // 2. 확인하면 apiService.logout() 호출
-    const handleLogout = () => {
-        // TODO: 함수를 완성하세요
-        const isConfirm = window.confirm("로그아웃 하시겠습니까?");
-        if(isConfirm) {
-            apiService.logout();
-        }
-    };
 
-    // TODO: loading이 true면 "로딩 중..." 표시
     if (loading) {
         return (
             <div className="feed-container">
@@ -93,34 +63,18 @@ const FeedPage = () => {
 
     return (
         <div className="feed-container">
-            <header className="header">
-                <div className="header-container">
-                    <h1 className="header-title">Instagram</h1>
-                    <div className="header-nav">
-                        <Home className="header-icon"
-                              onClick={() => navigate(('/'))}/>
-                        <MessageCircle className="header-icon"/>
-                        <PlusSquare className="header-icon"
-                                    onClick={() => navigate(('/upload'))}/>
-
-                        {/* TODO : 아이콘 클릭하면 스토리 업로드로 이동설정 */}
-                        <Film className="header-icon"
-                              onClick={() => navigate(('/story/upload'))}/>
-                        <User className="header-icon" onClick={handleLogout}/>
-                    </div>
-                </div>
-            </header>
+            <Header />
 
             <div className="feed-content">
-                {/* TODO: 스토리 섹션 작성 */}
-                {/* stories 배열이 있을 때만 표시 */}
-                {/* stories.map으로 각 스토리를 렌더링 */}
                 {stories.length > 0 && (
                     <div className="stories-container">
                         <div className="stories-wrapper">
                             {stories.map((story) => (
-                                <div key={story.storyId} className="story-item">
-                                    <div className="story-avatar-wrapper" key={story.storyId}>
+                                <div key={story.storyId}
+                                     className="story-item"
+                                     onClick={() => navigate(`/story/detail/${story.storyId}`)}
+                                >
+                                    <div className="story-avatar-wrapper" key={story.id}>
                                         <img src={story.userAvatar} className="story-avatar"/>
                                     </div>
                                     <span className="story-username">{story.userName}</span>
@@ -139,10 +93,10 @@ const FeedPage = () => {
                                     <img src={post.userAvatar} className="post-user-avatar"/>
                                     <span className="post-username">{post.userName}</span>
                                 </div>
-                                <MoreHorizontal className="post-more-icon"/>
+                                <MoreHorizontal className="post-more-icon" />
                             </div>
 
-                            <img src={post.postImage} className="post-image"/>
+                            <img src={post.postImage} className="post-image" />
                             <div className="post-content">
                                 <div className="post-actions">
                                     <div className="post-actions-left">
@@ -151,10 +105,10 @@ const FeedPage = () => {
                                             onClick={() => toggleLike(post.postId, post.isLiked)}
                                             fill={post.isLiked ? "#ed4956" : "none"}
                                         />
-                                        <MessageCircle className="action-icon"/>
-                                        <Send className="action-icon"/>
+                                        <MessageCircle className="action-icon" />
+                                        <Send className="action-icon" />
                                     </div>
-                                    <Bookmark className="action-icon"/>
+                                    <Bookmark className="action-icon" />
                                 </div>
 
                                 <div className="post-likes">
@@ -171,13 +125,12 @@ const FeedPage = () => {
                                     </button>
                                 )}
                                 <div className="post-time">
-                                    {post.createdAt || '방금 전'}
+                                    {post.createdAt ||'방금 전'}
                                 </div>
                             </div>
                         </article>
                     ))
                 )}
-                {/* TODO: 게시물이 없을 때 메시지 표시 */}
             </div>
         </div>
     );

@@ -60,6 +60,13 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
+    public Story getStoriesByStoryId(int storyId) {
+        log.info("클릭한 스토리 상세조회 - 클릭한 스토리 아이디 : {}", storyId);
+        Story story = storyMapper.selectStoriesByUserId(storyId);
+        return story;
+    }
+
+    @Override
     public void deleteExpiredStories() {
 
     }

@@ -23,6 +23,15 @@ public class PostController {
     private final PostService postService;
     private final JwtUtil jwtUtil;
 
+    @GetMapping
+    public ResponseEntity<List<Post>> getAllPosts(@RequestHeader("Authorization") String authHeader){
+
+        String token = authHeader.substring(7);
+        int currentUSerId = jwtUtil.getUserIdFromToken(token);
+        List<Post> posts = postService.getAllPosts(currentUSerId);
+        return ResponseEntity.ok(posts);
+    }
+
     @PostMapping
     public ResponseEntity<String> createPost(@RequestPart MultipartFile postImage,
                                              @RequestPart String postCaption,
@@ -48,11 +57,20 @@ public class PostController {
         }
     }
 
-    @GetMapping
-    public List<Post> allPost(@RequestHeader("Authorization") String authHeader){
-        String token = authHeader.substring(7); // 맨 앞 "Bearer "만 제거 하고 추출
-        int currentUserId = jwtUtil.getUserIdFromToken(token);
-        return postService.getAllPosts(currentUserId);
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Post>> getAllPostsByUserId(@RequestHeader("Authorization") String authHeader,
+                                                          @PathVariable int userId){
+        try {
+            String token = authHeader.substring(7);
+            int currentUserId = jwtUtil.getUserIdFromToken(token);
+
+            List<Post> posts = postService.getPostsByUserId(userId);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
     }
+
+
 
 }
