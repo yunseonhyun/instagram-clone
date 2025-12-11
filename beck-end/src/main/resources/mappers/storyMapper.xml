@@ -24,7 +24,15 @@
         select story_id, user_id, story_image, created_at, expires_at, user_name, user_avatar
         from active_stories_view
         where user_id = #{userId}
+        order by created_at asc
     </select>
+
+    <select id="selectStoryById" resultType="Story" parameterType="int">
+        select story_id, user_id, story_image, created_at
+        from stories
+        where story_id = #{storyId}
+    </select>
+
 
     <select id="selectStoriesByStoryId" resultType="Story" parameterType="int">
         select story_id, user_id, story_image, created_at, expires_at, user_name, user_avatar
@@ -39,4 +47,10 @@
         WHERE story_id = #{storyId}
     </update>
     <!-- 만료된 스토리는 삭제가 되는 것일까? 안보이고 보관처리가 되는 것일까 ?-->
+
+    <delete id="deleteStory" parameterType="int">
+        delete from stories
+        where user_id = #{userId} and story_id = #{storyId}
+    </delete>
+
 </mapper>

@@ -70,10 +70,24 @@ public class StoryController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getStory(@PathVariable("userId") int userId){
         try{
-            Story a = storyService.getStoriesByUserId(userId);
+            List<Story> a = storyService.getStoriesByUserId(userId);
             return  ResponseEntity.ok(a);
         } catch (Exception e){
             return ResponseEntity.badRequest().body("스토리 조회 실패 : "+e.getMessage());
+        }
+    }
+
+
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteStory(@RequestHeader("Authorization") String token, @RequestBody int storyId){
+        try {
+            String jwtToken = token.substring(7);
+            int userId = jwtUtil.getUserIdFromToken(jwtToken);
+
+            storyService.deleteStory(userId, storyId);
+            return ResponseEntity.ok("삭제 성공");
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body("삭제 실패"+ e.getMessage());
         }
     }
 }

@@ -9,11 +9,14 @@
 // - 입력값 검증 (이메일 형식, 사용자명 규칙, 비밀번호 길이)
 // ============================================
 
-import React, {useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
 
 const SignupPage = () => {
+    const location = useLocation();
+    console.log("kakao email : ", location.state?.email);
+    console.log("kakao email : ", location.state);
     // TODO: username state를 선언하세요 (user_name)
     const [username, setUsername] = useState('');
 
@@ -28,6 +31,25 @@ const SignupPage = () => {
 
     // TODO: loading state를 선언하세요
     const [loading, setLoading] = useState(false);
+
+    const [isKakaoSignup, setIsKakaoSignup] = useState(false);
+
+    useEffect(() => {
+            // 카카오에서 넘어온 정보로 email username fullname 작성하기
+
+        if(location.state?.email) {
+            setEmail(location.state.email);           // 이메일
+            setIsKakaoSignup(true);
+        }
+        if(location.state?.name) {
+            setUsername(location.state.name);        // 사용자 이름
+        }
+        if(location.state?.fullname){
+            setFullName(location.state.fullname);
+            }
+    }, []);
+
+
 
     // TODO: useNavigate를 사용하여 navigate 함수를 가져오세요
     const navigate = useNavigate();
@@ -141,6 +163,7 @@ const SignupPage = () => {
                             onChange={(e) => setEmail(e.target.value)}
                             onKeyPress={handleKeyPress}
                             autoComplete="email"
+                            disabled={isKakaoSignup}
                         />
 
 
@@ -152,6 +175,7 @@ const SignupPage = () => {
                             onChange={(e) => setFullName(e.target.value)}
                             onKeyPress={handleKeyPress}
                             autoComplete="name"
+                            disabled={isKakaoSignup}
                         />
 
 
@@ -163,6 +187,7 @@ const SignupPage = () => {
                             onChange={(e) => setUsername(e.target.value)}
                             onKeyPress={handleKeyPress}
                             autoComplete="username"
+                            disabled={isKakaoSignup}
                         />
 
 

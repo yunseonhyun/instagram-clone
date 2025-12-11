@@ -6,6 +6,7 @@ import com.instagram.story.model.dto.Story;
 import com.instagram.story.model.mapper.StoryMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,9 +54,9 @@ public class StoryServiceImpl implements StoryService {
     }
 
     @Override
-    public Story getStoriesByUserId(int userId) {
+    public List<Story> getStoriesByUserId(int userId) {
         log.info("특정 사용자 스토리 조회 - 사용자 ID : {}", userId);
-        Story story = storyMapper.selectStoriesByUserId(userId);
+        List<Story> story = storyMapper.selectStoriesByUserId(userId);
         return story;
     }
 
@@ -69,5 +70,33 @@ public class StoryServiceImpl implements StoryService {
     @Override
     public void deleteExpiredStories() {
 
+    }
+
+    @Override
+    public void deleteStory(int userId, int storyId){
+        log.info("스토리 삭제 시작 - 유저 ID : {}, 스토리 ID : {}", userId, storyId);
+
+        try {
+            // 1. 서버에서 이미지를 삭제할 수 있도록 storyId에 해당하는 데이터 조회
+            Story story = storyMapper.selectStoryById(storyId);
+
+            if(story == null) {
+                log.warn("스토리를 찾을 수 없습니다. - 스토리 ID : {}", storyId);
+
+            }
+
+            if(story.getStoryImage() != null && !story.getStoryImage().isEmpty()) {
+                boolean fileDelted = fileUploadService.deleteFile(story.getStoryImage());
+                if(!fileDelted) {
+                    log.warn("스토리 이미지 파일 삭제 실패 : {}", story.getStoryImage());
+                } else {
+                    log.info("스토리 이미지 파일 삭제 완료 : {}", story.getStoryImage());
+                }
+            }
+            storyMapper.deleteStory(userId, storyId);
+            log.info("스토리 DB 삭제 완료 - 유저 ID : {}, 스토리 ID : {}", userId, storyId);
+        } catch (Exception e) {
+            log.error("스토리 삭제 중 문제 발생 : {}", e.getMessage());
+        }
     }
 }

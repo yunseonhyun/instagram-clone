@@ -184,6 +184,11 @@ const apiService = {
         return res.data;
     },
 
+    deleteStory: async(storyId) => {
+        const res = await api.post(`/stories/delete`, storyId);
+        return res.data;
+    },
+
     // ===== 사용자 API =====
 
     // TODO: 사용자 프로필 조회
