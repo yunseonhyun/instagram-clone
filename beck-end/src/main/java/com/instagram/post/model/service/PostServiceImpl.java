@@ -67,6 +67,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public boolean addLike(int postId, int userId) {
+
         return postMapper.insertLike(postId, userId) > 0;
     }
 

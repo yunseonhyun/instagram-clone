@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:9000/api';
+export const API_BASE_URL = 'http://localhost:9000/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -90,26 +90,17 @@ const apiService = {
 
     // ===== 게시물 API =====
 
-    // TODO: 모든 게시물 조회
-    // GET /posts
     getPosts: async () => {
-        const res = await  api.get("/posts");
+        const res = await api.get('/posts');
         return res.data;
     },
 
-    // TODO: 특정 게시물 조회
-    // GET /posts/:postId
     getPost: async (userId) => {
-        // TODO: API 호출을 완성하세요
-        const res = await api.get('/post' + userId);
+        const res = await api.get('/posts/' + userId);
         return res.data;
     },
 
-    // TODO: 게시물 작성
-    // POST /posts
-    // body: { postImage, postCaption, postLocation }
     createPost: async (postImage, postCaption, postLocation) => {
-
         const formData = new FormData();
         formData.append('postImage', postImage);
         formData.append('postCaption', postCaption);
@@ -133,13 +124,15 @@ const apiService = {
     // TODO: 좋아요 추가
     // POST /posts/:postId/like
     addLike: async (postId) => {
-        // TODO: API 호출을 완성하세요
+        const res = await api.post(`/posts/${postId}/like`);
+        return res.data;
     },
 
     // TODO: 좋아요 취소
     // DELETE /posts/:postId/like
     removeLike: async (postId) => {
-        // TODO: API 호출을 완성하세요
+        const res = await api.delete(`/posts/${postId}/like`);
+        return res.data;
     },
 
     // ===== 댓글 API =====
@@ -170,13 +163,16 @@ const apiService = {
         return res.data;
     },
 
-    getStoriesByStoryId: async (storyId) => {
-        // TODO: API 호출을 완성하세요
-        const res = await api.get('/stories/' + storyId);
-        return res.data;
+    getStory : async(userId) => {
+        try {
+            const res = await api.get(`/stories/user/${userId}`);
+            return res.data;
+        } catch (err) {
+            console.error("스토리 조회 에러 : ", err.message);
+        }
     },
 
-    createStory: async (storyImage) => {
+    createStory: async ( storyImage) => {
         const formData = new FormData();
         formData.append('storyImage', storyImage);
 
@@ -200,6 +196,28 @@ const apiService = {
     // GET /users/:userId/posts
     getUserPosts: async (userId) => {
         // TODO: API 호출을 완성하세요
+    },
+
+
+    updateProfile: async (userId, formData) => {
+        try {
+            const res = await api.put("/auth/profile/edit",formData,{
+                headers: {
+                    "Content-Type":"multipart/form-data"
+                }
+            })
+            if(res.data){
+                localStorage.setItem('user', JSON.stringify(res.data));
+                const token = localStorage.getItem('token');
+                if(token){
+                    localStorage.setItem('token', token);
+                }
+            }
+            return res.data;
+        } catch (error) {
+            return Promise.reject(error);
+        }
+
     }
 };
 

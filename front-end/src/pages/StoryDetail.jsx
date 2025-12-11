@@ -1,22 +1,57 @@
 import React, { useEffect, useState } from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import { X, MoreHorizontal, Heart, Send } from 'lucide-react';
-import apiService from "../service/apiService";
+import apiService, {API_BASE_URL} from "../service/apiService";
+import {formatDate, getImageUrl} from "../service/commonService";
 
+/**
+ * commonSetvice에 현재 날짜를 몇 시간 전에 업로드했는지 formatData 메서드 사용하여 날짜 변환
+ * {storyData.createdAy}
+ *
+ * formData 형태로 1시간 1분전 업로드 형태로 수정
+ * yyyy-mm-dd 형태로 확인 수정
+ * */
+
+// story 의 경우 상대방의 스토리를 다른 유저가 선택해서보는 것이 아니라
+// 유저가 올린 스토리를 오래된 순서부터 하나씩 보여짐 어떤 스토리와 스토리가 얼만큼 있는지
+// 유저 프로필을 클릭하지 않으면 알 수 없다.
 const StoryDetail = () => {
     const navigate = useNavigate();
     const [progress, setProgress] = useState(0);
+    const {userId} = useParams();
 
-    const { storyId } = useParams();
+    // List -> {}
+    const [storyData, setStoryData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [message, setMessage] = useState('');
 
-    const [storyData, setStoryData] = useState({
-        username: "friend_user",
-        userImage: "https://via.placeholder.com/50",
-        storyImage: "https://picsum.photos/600/1000",
-        uploadedAt: "12시간"
-    });
+    // userId ->storyId
+    useEffect(() => {
+        loadStoryData()
+    },[userId]);
+
+
+
+    const loadStoryData = async () => {
+        try {
+            setLoading(true);
+            const data = await apiService.getStory(userId);
+            console.log("data 정보 : " ,data);
+            setStoryData(data);
+        } catch (err) {
+            alert('스토리를 불러오는데 실패했습니다.');
+            navigate('/feed');
+        }finally {
+            setLoading(false);
+        }
+    }
+
+
 
     useEffect(() => {
+
+        if(!storyData) return;
+
         const duration = 5000;
         const intervalTime = 50;
 
@@ -24,50 +59,48 @@ const StoryDetail = () => {
             setProgress(prev => {
                 if (prev >= 100) {
                     clearInterval(timer);
-                    navigate(-1);
+                    navigate("/feed");
                     return 100;
                 }
                 return prev + (100 / (duration / intervalTime));
             });
         }, intervalTime);
-        loadStoryDetail();
+
         return () => clearInterval(timer);
-    }, [navigate]);
+    }, [storyData, navigate]);
 
 
-    const loadStoryDetail = async () => {
-        const res = await apiService.getStoriesByStoryId(storyId);
-
-        setStoryData(prev => ({
-            ...prev,
-            username: res.username,
-            userImage: res.userImage,
-            storyImage: res.storyImage
-        }));
-    };
+    if(loading) return <div>로딩중</div>;
 
     return (
         <div className="story-viewer-container">
             <div
                 className="story-bg-blur"
-                style={{backgroundImage: `url(${storyData.storyImage})`}}
+                style={{backgroundImage: `url(${getImageUrl(storyData.storyImage)})`}}
             />
 
             <div className="story-content-box">
                 <div className="story-progress-wrapper">
                     <div className="story-progress-bar">
-                        <div className="story-progress-fill" style={{width: `${progress}%`}}></div>
+                        <div className="story-progress-fill"
+                             style={{width: `${progress}%`}}></div>
                     </div>
                 </div>
 
                 <div className="story-header-info">
                     <div className="story-user">
-                        <img src={storyData.userImage} alt="user" className="story-user-avatar" />
-                        <span className="story-username">{storyData.username}</span>
-                        <span className="story-time">{storyData.uploadedAt}</span>
+                        <img src={getImageUrl(storyData.userImage)} alt="user"
+                             className="story-user-avatar" />
+                        <span className="story-username">
+                            {storyData.userName}
+                        </span>
+                        <span className="story-time">
+                            {formatDate(storyData.createdAt,'relative')}
+                        </span>
                     </div>
                     <div className="story-header-actions">
-                        <MoreHorizontal color="white" className="story-icon"/>
+                        <MoreHorizontal color="white"
+                                        className="story-icon"/>
                         <X
                             color="white"
                             className="story-icon"
@@ -76,7 +109,9 @@ const StoryDetail = () => {
                     </div>
                 </div>
 
-                <img src={storyData.storyImage} alt="story" className="story-main-image" />
+                <img src={getImageUrl(storyData.storyImage)}
+                     alt="story"
+                     className="story-main-image" />
 
                 <div className="story-footer">
                     <div className="story-input-container">
@@ -86,8 +121,10 @@ const StoryDetail = () => {
                             className="story-message-input"
                         />
                     </div>
-                    <Heart color="white" className="story-icon" />
-                    <Send color="white" className="story-icon" />
+                    <Heart color="white"
+                           className="story-icon" />
+                    <Send color="white"
+                          className="story-icon" />
                 </div>
             </div>
         </div>

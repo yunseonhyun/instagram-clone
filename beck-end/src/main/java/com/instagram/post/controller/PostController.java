@@ -72,5 +72,37 @@ public class PostController {
     }
 
 
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<Boolean> addLike(@PathVariable int postId,
+                                          @RequestHeader("Authorization") String authHeader) {
+
+        try {
+            String token = authHeader.substring(7);
+            int currentUserId = jwtUtil.getUserIdFromToken(token);
+
+            boolean result = postService.addLike(postId, currentUserId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("좋아요 추가 실패 : {}" + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
+    @DeleteMapping("/{postId}/like")
+    public ResponseEntity<Boolean> removeLike(@PathVariable int postId,
+                                           @RequestHeader("Authorization") String authHeader) {
+
+        try {
+            String token = authHeader.substring(7);
+            int currentUserId = jwtUtil.getUserIdFromToken(token);
+
+            boolean result = postService.removeLike(postId, currentUserId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("좋아요 취소 실패 : {}" + e.getMessage());
+            return ResponseEntity.badRequest().body(false);
+        }
+    }
 
 }

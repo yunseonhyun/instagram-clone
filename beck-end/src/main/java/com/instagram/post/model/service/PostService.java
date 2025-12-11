@@ -22,6 +22,6 @@ public interface PostService {
     boolean deletePost(int postId);
 
 
-    boolean addLike(int postId, int userId);
+    boolean addLike(int postId, int currentUserId);
     boolean removeLike(int postId, int userId);
 }

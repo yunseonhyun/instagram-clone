@@ -15,8 +15,8 @@ public interface StoryMapper {
 
     List<Story> selectAllStories();
 
-    Story selectStoriesByStoryId(int story);
+    Story selectStoriesByStoryId(int storyId);
 
-    Story selectStoriesByUserId(int id);
+    Story selectStoriesByUserId(int userId);
     // 만료된 스토리 void updateStory(Story story);
 }
