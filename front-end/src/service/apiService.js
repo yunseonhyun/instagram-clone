@@ -14,7 +14,7 @@ const api = axios.create({
 api.interceptors.request.use(
     config => {
         const token = localStorage.getItem('token');
-        if(token){
+        if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
@@ -40,7 +40,7 @@ api.interceptors.response.use(
         return response;
     },
     error => {
-        if(error.response && error.response.status === 401){
+        if (error.response && error.response.status === 401) {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login';
@@ -75,17 +75,17 @@ const apiService = {
         });
 
         // 토큰과 사용자 정보를 localStorage 저장
-        if(res.data.token) {
+        if (res.data.token) {
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
         }
         return res.data;
     },
 
-    // TODO: 로그아웃 함수
-    // localStorage에서 token과 user 제거하고 /login으로 이동
     logout: () => {
-        // TODO: 로그아웃 로직을 완성하세요
+        localStorage.removeItem("token");
+        localStorage.removeItem('user');
+        window.location.href = '/login';
     },
 
     // ===== 게시물 API =====
@@ -105,7 +105,7 @@ const apiService = {
         formData.append('postImage', postImage);
         formData.append('postCaption', postCaption);
         formData.append('postLocation', postLocation);
-        const res = await  api.post("/posts", formData, {
+        const res = await api.post("/posts", formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             }
@@ -163,16 +163,16 @@ const apiService = {
         return res.data;
     },
 
-    getStory : async(userId) => {
+    getStory: async (userId) => {
         try {
             const res = await api.get(`/stories/user/${userId}`);
             return res.data;
         } catch (err) {
-            console.error("스토리 조회 에러 : ", err.message);
+            console.error("스토리 조회 에러 : ", err.response?.data || err.message);
         }
     },
 
-    createStory: async ( storyImage) => {
+    createStory: async (storyImage) => {
         const formData = new FormData();
         formData.append('storyImage', storyImage);
 
@@ -184,8 +184,8 @@ const apiService = {
         return res.data;
     },
 
-    deleteStory: async(storyId) => {
-        const res = await api.post(`/stories/delete`, storyId);
+    deleteStory: async (storyId) => {
+        const res = await api.delete(`/stories/${storyId}`);
         return res.data;
     },
 
@@ -206,15 +206,15 @@ const apiService = {
 
     updateProfile: async (userId, formData) => {
         try {
-            const res = await api.put("/auth/profile/edit",formData,{
+            const res = await api.put("/auth/profile/edit", formData, {
                 headers: {
-                    "Content-Type":"multipart/form-data"
+                    "Content-Type": "multipart/form-data"
                 }
             })
-            if(res.data){
+            if (res.data) {
                 localStorage.setItem('user', JSON.stringify(res.data));
                 const token = localStorage.getItem('token');
-                if(token){
+                if (token) {
                     localStorage.setItem('token', token);
                 }
             }
@@ -223,6 +223,28 @@ const apiService = {
             return Promise.reject(error);
         }
 
+    },
+    searchUsers: async (query) => {
+        try {
+            const res = await api.get(`/users/search?q=${query}`);
+            return res.data;
+        } catch (err) {
+            console.error("유저 검색 실패",err);
+            return [];
+        }
+
+        // q=${encodeURIComponent(query)
+
+    },
+
+    getUserByUsername: async (username) => {
+        try {
+            const res = await api.get(`/users/username/${username}`);
+            return res.data;
+        }catch(err) {
+            console.error("유저 조회 실패",err);
+            return null;
+        }
     }
 };
 

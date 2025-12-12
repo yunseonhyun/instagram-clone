@@ -1,24 +1,23 @@
 import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
-import {ArrowLeft, Image} from 'lucide-react';
+import {Image} from 'lucide-react';
 import {getFilteredFile, FILTER_OPTIONS} from "../service/filterService";
 import Header from "../components/Header";
+import MentionInput from "../components/MentionInput";
+// TODO 10: MentionInput 컴포넌트 import
+// import MentionInput from "../components/MentionInput";
 
-// 필요에 따라 소비자가 업로드한 이미지를 리사이즈 처리화 해야할 수 있다.
-// 예 -> 10mb이상의 이미지를올리면 8mb 이하의 이미지로 사이즈 축소, 크기 축소
+
 const UploadPage = () => {
-
     const [selectedImage, setSelectedImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [caption, setCaption] = useState('');
     const [location, setLocation] = useState('');
     const [loading, setLoading] = useState(false);
-
     const [selectedFilter, setSelectedFilter] = useState('none');
 
     const navigate = useNavigate();
-
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     const handleImageChange = (e) => {
@@ -28,11 +27,12 @@ const UploadPage = () => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result);
-                setSelectedFilter('none'); //이미지 변경 시 필터 초기화
+                setSelectedFilter('none');
             };
             reader.readAsDataURL(f);
         }
     };
+
     const handlePost = async () => {
         if (!selectedImage || !caption.trim()) {
             alert("이미지와 캡션을 입력해주세요.");
@@ -40,9 +40,8 @@ const UploadPage = () => {
         }
         try {
             setLoading(true);
-            // TODO : 1. 필터가 적용된 이미지 파일 생성한 데이터 변수에 담기
-            const filteredImage = await getFilteredFile(selectedImage,selectedFilter);
-            // TODO : 2. 필터가 적용된 이미지를 서버에 전송
+            console.log("글 내용 : ", caption);
+            const filteredImage = await getFilteredFile(selectedImage, selectedFilter);
             await apiService.createPost(filteredImage, caption, location);
             alert("게시물이 성공적으로 등록되었습니다.");
             navigate("/feed")
@@ -52,19 +51,19 @@ const UploadPage = () => {
             setLoading(false);
         }
     };
-    const handleLocationChange = () =>{
+
+    const handleLocationChange = () => {
         const loc = prompt('위치를 입력하세요.');
         if(loc) setLocation(loc);
-
     }
-// <img class="upload-user-avatar" src="default-avatar.png">
-    // user.userAvatar 로 가져온 이미지가 엑스 박스일 때
 
     const avatarImage = user.userAvatar && user.userAvatar.trim() !== ''?
         user.userAvatar : '/static/img/default-avatar.jpg';
+
     const handleAvatarError = (e) => {
         e.target.src ='/static/img/default-avatar.jpg';
     }
+
     return (
         <div className="upload-container">
             <Header
@@ -88,8 +87,8 @@ const UploadPage = () => {
                                 <div className="filter-scroll-container">
                                     {FILTER_OPTIONS.map((option) => (
                                         <div key={option.name}
-                                             className={`filter-item 
-                                            ${selectedFilter === option.filter ?'active':''}  `}
+                                             className={`filter-item
+                                                ${selectedFilter === option.filter ?'active':''}  `}
                                              onClick={() => setSelectedFilter(option.filter)}
                                         >
                                             <span className="filter-name">{option.name}</span>
@@ -98,9 +97,7 @@ const UploadPage = () => {
                                                      backgroundImage:`url(${imagePreview})`,
                                                      filter: option.filter,
                                                  }}
-                                            >
-
-                                            </div>
+                                            />
                                         </div>
                                     ))}
                                 </div>
@@ -128,7 +125,6 @@ const UploadPage = () => {
                                        onChange={handleImageChange}
                                        className="upload-file-input"
                                 />
-
                             </label>)
                         }
                     </div>
@@ -142,16 +138,18 @@ const UploadPage = () => {
                             <div className="upload-caption-right">
                                 <div className="upload-username">
                                     {user.userName}
-
                                 </div>
-                                <textarea
-                                    placeholder="문구를 입력하세요..."
+
+                                {/* TODO 11: 기존 textarea를 MentionInput으로 교체 */}
+                                <MentionInput
                                     value={caption}
-                                    onChange={(e) => setCaption(e.target.value)}
+                                    onChange={setCaption}
+                                    placeholder="문구를 입력하세요... (@로 사용자 태그)"
                                     rows={4}
-                                    className="upload-caption-input"
-                                />
-                                <div className="upload-caption-content">
+                                    />
+
+
+                                <div className="upload-caption-count">
                                     {caption.length}/2,200
                                 </div>
                             </div>

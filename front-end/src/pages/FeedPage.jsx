@@ -1,21 +1,24 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import apiService from '../service/apiService';
-import {Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Home, PlusSquare, Film, User} from 'lucide-react';
+import {Heart, MessageCircle, Send, Bookmark, MoreHorizontal} from 'lucide-react';
 import Header from "../components/Header";
 import {getImageUrl} from "../service/commonService";
-{/* heart 를 클릭하면 좋아요 수 증가 */}
+import MentionText from "../components/MentionText";
+// TODO 12: MentionText 컴포넌트 import
+// import MentionText from "../components/MentionText";
+
+
 const FeedPage = () => {
     const [posts, setPosts] = useState([]);
-
     const [stories, setStories] = useState([]);
-
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+
     useEffect(() => {
         loadFeedData();
-    },[]);
+    }, []);
 
     const loadFeedData = async () => {
         setLoading(true);
@@ -31,79 +34,48 @@ const FeedPage = () => {
 
         try {
             const storiesData = await apiService.getStories();
-
-            // 사용자 별로 스토리 그룹화
-            setStories(groupStoriesByUser(storiesData));
+            const gu = groupStoriesByUser(storiesData);
+            setStories(gu);
         } catch (err) {
             alert("스토리 피드를 불러오는데 실패했습니다.")
-        } finally {
-            setLoading(false);
         }
     };
 
-    // 사용자 별로 스토리를 그룹화하고 가장 최근 스토리만 반환
-    // select * from story 에서 가져온 모든 데이터를 storiesData 변수에 전달
     const groupStoriesByUser = (storiesData) => {
-        const userStoriesMap = {}; // 추후 유저들을 그룹화해서 담을 변수 공간
-        // db에서 가져온 모든 스토리를 for문으로 순회
-
+        const userStoriesMap = {};
         storiesData.forEach(story => {
-            const userId = story.userId; // 각 스토리에 해당하는 유저 아이디를 변수이름에 담아
-            // 해당 사용자의 첫 스토리이거나, 더 최근 스토리인 경우 스토리 유저 나열 순서를 맨 앞으로 이동
-            // 정렬 = 알고리즘
-
-            if(!userStoriesMap[userId] || new Date(story.createdAt) > new Date(userStoriesMap[userId].createdAt)
-            ){
+            const userId = story.userId;
+            if (!userStoriesMap[userId]
+                ||
+                new Date(story.createdAt) > new Date(userStoriesMap[userId].createdAt)
+            ) {
                 userStoriesMap[userId] = story;
             }
         });
-        // 위에서 그룹화한 userStoriesMap 유저들을 배열로 변환하고 최신순으로 정렬
-        // 정렬 알고리즘
-        return Object.values(userStoriesMap).sort((a,b) =>
-        new Date(b.createdAt) - new Date(a.createdAt));
+        return Object.values(userStoriesMap).sort((a, b) =>
+            new Date(b.createdAt) - new Date(a.createdAt)
+        );
     }
 
     const toggleLike = async (postId, isLiked) => {
-        // 1. 현재 게시물 목록 복사 (원본을 바로 건드리면 안됨)
         const newPosts = [...posts];
-
-        // 내가 클릭한 게시물이 몇 번째에 있는지 찾습니다.
         const targetIndex = newPosts.findIndex(post => post.postId === postId);
 
-        // 게시물 찾았다면
-        if(targetIndex !== -1) {
-            // 좋아요 상태를 반대로 뒤집기(true -> false)
+        if (targetIndex !== -1) {
             newPosts[targetIndex].isLiked = !isLiked;
-
-            // 숫자 취소 -1 차감
-            if(isLiked) newPosts[targetIndex].likeCount -= 1;
-            // 숫자 추가 +1 추가
+            if (isLiked) newPosts[targetIndex].likeCount -= 1;
             else newPosts[targetIndex].likeCount += 1;
-
-            // 변경된 상태로 화면 업그레이드
             setPosts(newPosts);
         }
-        // 소비자에게 백엔드 속도 중요하지 않고, 눈 앞에 보여지는 화면의 속도가 우선이므로
-        // 프론트엔드에서 바뀌는 작업을 보인 후, 백엔드 로직 진행
-        // 실패할 경우 카운트 원상복구 후 소비자에게 전달
 
         try {
-            // 좋아요 누르고 취소가 된다. 하지만 백그라운드에서 작업 바로 보이는 상황이 아님
-            if(isLiked) await  apiService.removeLike(postId);
-            else await  apiService.addLike(postId);
-
-            /*
-            기존에는 백엔드 -> 프론트엔드 변경했다면
-            수정내용은 프론트엔드 -> 백엔드 로직
-            const postsData = await apiService.getPosts();
-            setPosts(postsData);
-            */
+            if (isLiked) await apiService.removeLike(postId);
+            else await apiService.addLike(postId);
         } catch (err) {
             alert("좋아요 처리에 실패했습니다.");
-            loadFeedData(); // 다시 원래상태로 복구
+            loadFeedData();
         }
     };
-
 
     if (loading) {
         return (
@@ -117,7 +89,7 @@ const FeedPage = () => {
 
     return (
         <div className="feed-container">
-            <Header />
+            <Header/>
 
             <div className="feed-content">
                 {stories.length > 0 && (
@@ -142,7 +114,6 @@ const FeedPage = () => {
                     </div>
                 )}
 
-
                 {posts.length > 0 && (
                     posts.map((post) => (
                         <article key={post.postId} className="post-card">
@@ -151,10 +122,10 @@ const FeedPage = () => {
                                     <img src={getImageUrl(post.userAvatar)} className="post-user-avatar"/>
                                     <span className="post-username">{post.userName}</span>
                                 </div>
-                                <MoreHorizontal className="post-more-icon" />
+                                <MoreHorizontal className="post-more-icon"/>
                             </div>
 
-                            <img src={post.postImage} className="post-image" />
+                            <img src={post.postImage} className="post-image"/>
                             <div className="post-content">
                                 <div className="post-actions">
                                     <div className="post-actions-left">
@@ -163,10 +134,10 @@ const FeedPage = () => {
                                             onClick={() => toggleLike(post.postId, post.isLiked)}
                                             fill={post.isLiked ? "#ed4956" : "none"}
                                         />
-                                        <MessageCircle className="action-icon" />
-                                        <Send className="action-icon" />
+                                        <MessageCircle className="action-icon"/>
+                                        <Send className="action-icon"/>
                                     </div>
-                                    <Bookmark className="action-icon" />
+                                    <Bookmark className="action-icon"/>
                                 </div>
 
                                 <div className="post-likes">
@@ -175,15 +146,24 @@ const FeedPage = () => {
 
                                 <div className="post-caption">
                                     <span className="post-caption-username">{post.userName}</span>
+                                    <MentionText text={post.postCaption}/>
+
+                                    {/* TODO 13: 캡션 텍스트를 MentionText로 교체 */}
+                                    {/*
+                                        요구사항:
+                                        1. 기존 {post.postCaption} 주석 처리
+                                        2. <MentionText text={post.postCaption} /> 사용
                                     {post.postCaption}
+                                    */}
                                 </div>
+
                                 {post.commentCount > 0 && (
                                     <button className="post-comments-btn">
                                         댓글{post.commentCount}개 모두 보기
                                     </button>
                                 )}
                                 <div className="post-time">
-                                    {post.createdAt ||'방금 전'}
+                                    {post.createdAt || '방금 전'}
                                 </div>
                             </div>
                         </article>

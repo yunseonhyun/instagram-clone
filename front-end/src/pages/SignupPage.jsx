@@ -35,20 +35,15 @@ const SignupPage = () => {
     const [isKakaoSignup, setIsKakaoSignup] = useState(false);
 
     useEffect(() => {
-            // 카카오에서 넘어온 정보로 email username fullname 작성하기
+        // 카카오에서 넘어온 정보로 email username fullname 작성하기
 
-        if(location.state?.email) {
+        if (location.state?.email) {
             setEmail(location.state.email);           // 이메일
             setIsKakaoSignup(true);
-        }
-        if(location.state?.name) {
             setUsername(location.state.name);        // 사용자 이름
-        }
-        if(location.state?.fullname){
             setFullName(location.state.fullname);
-            }
+        }
     }, []);
-
 
 
     // TODO: useNavigate를 사용하여 navigate 함수를 가져오세요
@@ -66,19 +61,19 @@ const SignupPage = () => {
     // 9. finally: loading을 false로 설정
     const handleSignup = async () => {
         // TODO: 함수를 완성하세요
-        try{
+        try {
             const response = await apiService.signup(username, email, password, fullName);
 
             alert("회원가입이 완료되었습니다. 로그인해주세요.");
             navigate("/login");
-        } catch(error){
+        } catch (error) {
             let errorMessage = '회원가입에 실패했습니다.';
 
-            if(error.response && error?.message){
+            if (error.response && error?.message) {
                 errorMessage = error.response.data.message;
-            } else if(error.response?.status === 409) {
+            } else if (error.response?.status === 409) {
                 errorMessage = '이미 사용중인 사용자 이름 또는 이메일입니다.';
-            } else if(error.response?.status === 400) {
+            } else if (error.response?.status === 400) {
                 errorMessage = '입력 정보를 확인해주세요.';
             }
             alert(errorMessage);
@@ -190,7 +185,8 @@ const SignupPage = () => {
                             disabled={isKakaoSignup}
                         />
 
-
+                        {/* kakao 회원가입이 아닐 때는 비밀번호 입력 창 생략*/}
+                        {!isKakaoSignup &&(
                         <input
                             className="login-input"
                             type="password"
@@ -200,6 +196,7 @@ const SignupPage = () => {
                             onKeyPress={handleKeyPress}
                             autoComplete="new-password"
                         />
+                        )}
 
 
                         {/* TODO: 가입 버튼 작성 */}
@@ -214,8 +211,8 @@ const SignupPage = () => {
                             disabled={loading}
                         >
                             {loading ? (<div style={{opacity: '0.7', cursor: 'not-allowed'}}>
-                                    가입 중...
-                            </div>
+                                        가입 중...
+                                    </div>
                                 ) :
                                 '가입'}
                         </button>

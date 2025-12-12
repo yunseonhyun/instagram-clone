@@ -33,7 +33,9 @@ const LoginPage = () => {
 
     // TODO: Enter 키 입력 시 handleLogin 호출하는 함수 작성
     const handleKeyPress = (e) => {
-        // TODO: 함수를 완성하세요
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
     };
 
     const handleKakaoLogin = () => {
