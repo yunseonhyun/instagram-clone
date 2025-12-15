@@ -28,7 +28,6 @@ const MentionInput = ({value, onChange, placeholder, rows = 4}) => {
 
     };
 
-    // TODO 4: 텍스트 변경 처리 함수 구현
     const handleTextChange = (e) => {
         const newValue = e.target.value;
         const newCursorPosition = e.target.selectionStart;
@@ -51,7 +50,6 @@ const MentionInput = ({value, onChange, placeholder, rows = 4}) => {
 
     };
 
-    // TODO 5: 유저 선택 함수 구현
     const selectUser = (user) => {
         // 요구사항:
         // 1. 커서 이전/이후 텍스트 추출
@@ -108,7 +106,6 @@ const MentionInput = ({value, onChange, placeholder, rows = 4}) => {
     };
 
 
-    // TODO 7: 외부 클릭 감지 useEffect 구현
     useEffect(() => {
         // 요구사항:
         // 1. handleClickOutside 함수 생성

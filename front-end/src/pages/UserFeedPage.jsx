@@ -2,10 +2,10 @@ import React, {useEffect, useState} from 'react';
 import Header from '../components/Header';
 import {Grid, Bookmark, Settings} from 'lucide-react';
 import apiService from "../service/apiService";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useSearchParams} from "react-router-dom";
 import {getImageUrl} from "../service/commonService";
 
-const MyFeedPage = () => {
+const UserFeedPage = () => {
     const [user, setUser] = useState(null);
     const [posts, setPosts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
@@ -13,15 +13,17 @@ const MyFeedPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        loadMyFeedData();
+        loadUserFeedData();
     }, []);
 
-    const currentUser = JSON.parse(localStorage.getItem('user'));
-    const loadMyFeedData = async () => {
+    const [searchParams] = useSearchParams();
+
+    const loadUserFeedData = async () => {
         setLoading(true);
         try {
 
-            const userId = currentUser.userId;
+            const userId = searchParams.get('userId');
+            console.log("들어간 userId : ", userId);
 
             if (!userId) return navigate('/login');
 
@@ -122,7 +124,7 @@ const MyFeedPage = () => {
     );
 };
 
-export default MyFeedPage;
+export default UserFeedPage;
 
 /*
 불필요한 게시물을 모두 가져온 후 필터 작업을 진행해야하므로

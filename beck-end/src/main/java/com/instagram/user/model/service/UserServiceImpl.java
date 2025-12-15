@@ -139,14 +139,10 @@ public class UserServiceImpl implements UserService {
     // TODO 8: getUserByUsername 메서드 구현
     @Override
     public User getUserByUsername(String userName) {
-        // 요구사항:
         try{
-        // 1. userName이 null이거나 빈 문자열이면 null 반환
         if (userName == null || userName.isEmpty()) return null;
-        // 2. userMapper.selectUserByUserNameExact(userName) 호출
         return userMapper.selectUserByUserNameExact(userName);
     } catch (Exception e) {
-        // 3. 예외 발생 시 로그 출력 후 null 반환
             log.error("정보를 불러오는 중 오류 발생 : {}", e.getMessage());
             return null;
         }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ArrowLeft, Film, Home, MessageCircle, PlusSquare, Settings, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
-
+import SearchModal from "./SearchModal";
 
 const Header = ({
                     type="feed",
@@ -16,9 +16,24 @@ const Header = ({
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const openSidebar = () => setIsSidebarOpen(true);
+    // TODO 1: 검색 모달 상태 변수 선언
+    // 요구사항: isSearchOpen 상태 변수를 선언하고 초기값을 false로 설정
+    // 힌트: const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+    // 여기에 코드 작성
+
+    const openSidebar = () => setIsSidebarOpen(true);
     const closeSidebar = () => setIsSidebarOpen(false);
+
+    // TODO 2: 검색 모달 열기/닫기 함수 구현
+    // 요구사항:
+    // 1. openSearch 함수: setIsSearchOpen(true) 호출
+    // 2. closeSearch 함수: setIsSearchOpen(false) 호출
+    const openSearch = () => setIsSearchOpen(true);
+    const closeSearch = () => setIsSearchOpen(false);
+
+    // 여기에 코드 작성
 
     if(type === 'feed') {
         return (
@@ -27,7 +42,10 @@ const Header = ({
                     <div className="header-container">
                         <h1 className="header-title">Instagram</h1>
                         <div className="header-nav">
-                            <Home className="header-icon" onClick={() => navigate('/feed')}/>
+                            {/* TODO 3: Home 아이콘 클릭 시 검색 모달 열기 */}
+                            {/* 요구사항: onClick에 openSearch 함수 연결 (기존 navigate('/') 제거) */}
+                            <Home className="header-icon" onClick={openSearch}/>
+
                             <MessageCircle className="header-icon"/>
                             <PlusSquare className="header-icon" onClick={() => navigate('/upload')}/>
                             <Film className="header-icon" onClick={() => navigate("/story/upload")}/>
@@ -43,9 +61,14 @@ const Header = ({
                 </header>
 
                 <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+
+                {/* TODO 4: SearchModal 컴포넌트 추가 */}
+
+                <SearchModal isOpen={isSearchOpen} onClose={closeSearch} />
             </>
         )
     }
+
     if(type ==='upload') {
         return (
             <header className="upload-header">
@@ -66,4 +89,44 @@ const Header = ({
         )
     }
 }
+
 export default Header;
+
+
+/*
+=================================================================
+TODO 체크리스트 및 정답
+=================================================================
+
+TODO 1: 검색 모달 상태 변수 선언
+정답:
+const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+TODO 2: 검색 모달 열기/닫기 함수 구현
+정답:
+const openSearch = () => setIsSearchOpen(true);
+const closeSearch = () => setIsSearchOpen(false);
+
+TODO 3: Home 아이콘 클릭 시 검색 모달 열기
+정답:
+<Home className="header-icon" onClick={openSearch}/>
+
+TODO 4: SearchModal 컴포넌트 추가
+정답:
+<SearchModal isOpen={isSearchOpen} onClose={closeSearch} />
+
+=================================================================
+완성된 코드:
+=================================================================
+
+const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+const openSearch = () => setIsSearchOpen(true);
+const closeSearch = () => setIsSearchOpen(false);
+
+<Home className="header-icon" onClick={openSearch}/>
+
+<SearchModal isOpen={isSearchOpen} onClose={closeSearch} />
+
+=================================================================
+*/
