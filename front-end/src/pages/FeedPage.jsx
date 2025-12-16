@@ -5,16 +5,17 @@ import {Heart, MessageCircle, Send, Bookmark, MoreHorizontal} from 'lucide-react
 import Header from "../components/Header";
 import {getImageUrl} from "../service/commonService";
 import MentionText from "../components/MentionText";
-// TODO 12: MentionText 컴포넌트 import
-// import MentionText from "../components/MentionText";
-
-
+import PostOptionMenu from "../components/PostOptionMenu";
+import PostDetailModal from "../components/PostDetailModal";
+/* 이미지 클릭시 모달 열기 */
 const FeedPage = () => {
     const [posts, setPosts] = useState([]);
     const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [selectedPost, setSelectedPost] = useState(null);
 
     const navigate = useNavigate();
+    const currentUser = JSON.parse(localStorage.getItem("user") || '[]');
 
     useEffect(() => {
         loadFeedData();
@@ -77,6 +78,17 @@ const FeedPage = () => {
         }
     };
 
+    const deletePost = async (postId) => {
+        try {
+            await apiService.deletePost(postId);
+            setPosts(posts.filter(p => p.postId !== postId));
+            setSelectedPost(null);
+            alert("게시물이 삭제되었습니다.");
+        } catch (err) {
+            alert("게시물 삭제에 실패했습니다.");
+        }
+    }
+
     if (loading) {
         return (
             <div className="feed-container">
@@ -119,13 +131,30 @@ const FeedPage = () => {
                         <article key={post.postId} className="post-card">
                             <div className="post-header">
                                 <div className="post-user-info">
-                                    <img src={getImageUrl(post.userAvatar)} className="post-user-avatar"/>
+                                    <img src={getImageUrl(post.userAvatar)}
+                                         className="post-user-avatar"
+
+                                    />
                                     <span className="post-username">{post.userName}</span>
                                 </div>
-                                <MoreHorizontal className="post-more-icon"/>
+                                <PostOptionMenu
+                                    post={post}
+                                    currentUserId={currentUser.userId}
+                                    onDelete={deletePost}/>
                             </div>
-
-                            <img src={post.postImage} className="post-image"/>
+                            <img src={post.postImage}
+                                 className="post-image"
+                                 onClick={() => navigate(`/post/${post.postId}`)}
+                                 style={{cursor: 'pointer'}}
+                            />
+                            {/*
+                            modal 로 detail 띄우기
+                            <img src={post.postImage}
+                                 className="post-image"
+                                 onClick={() => setSelectedPost(post)}
+                                 style={{cursor: 'pointer'}}
+                            />
+                            */}
                             <div className="post-content">
                                 <div className="post-actions">
                                     <div className="post-actions-left">
@@ -134,7 +163,9 @@ const FeedPage = () => {
                                             onClick={() => toggleLike(post.postId, post.isLiked)}
                                             fill={post.isLiked ? "#ed4956" : "none"}
                                         />
-                                        <MessageCircle className="action-icon"/>
+                                        <MessageCircle
+                                            className="action-icon"
+                                            onClick={() => navigate(`/post/${post.postId}`)}/>
                                         <Send className="action-icon"/>
                                     </div>
                                     <Bookmark className="action-icon"/>
@@ -148,17 +179,11 @@ const FeedPage = () => {
                                     <span className="post-caption-username">{post.userName}</span>
                                     <MentionText text={post.postCaption}/>
 
-                                    {/* TODO 13: 캡션 텍스트를 MentionText로 교체 */}
-                                    {/*
-                                        요구사항:
-                                        1. 기존 {post.postCaption} 주석 처리
-                                        2. <MentionText text={post.postCaption} /> 사용
-                                    {post.postCaption}
-                                    */}
                                 </div>
 
                                 {post.commentCount > 0 && (
-                                    <button className="post-comments-btn">
+                                    <button className="post-comments-btn"
+                                            onClick={() => navigate(`/post/${post.postId}`)}>
                                         댓글{post.commentCount}개 모두 보기
                                     </button>
                                 )}
@@ -170,6 +195,16 @@ const FeedPage = () => {
                     ))
                 )}
             </div>
+
+            {selectedPost && (
+                <PostDetailModal
+                    post={selectedPost}
+                    currentUserId={currentUser.userId}
+                    onClose={() => setSelectedPost(null)}
+                    onDelete={deletePost}
+                    onToggleLike={toggleLike}
+                />
+            )}
         </div>
     );
 };

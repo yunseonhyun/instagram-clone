@@ -18,6 +18,9 @@ public interface PostMapper {
     // 특정 게시물 사용자 조회
     List<Post> selectPostsByUserId(int userId);
 
+    // 특정 게시물 한개 조회
+    Post selectPostByPostId(int postId);
+
     // 게시물 작성
     int insertPost(Post post);
     // 게시물 삭제
@@ -26,5 +29,6 @@ public interface PostMapper {
     int insertLike(int postId, int userId);
     // 좋아요 취소
     int deleteLike(int postId, int userId);
+
 
 }

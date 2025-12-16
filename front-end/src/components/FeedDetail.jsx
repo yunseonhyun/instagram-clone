@@ -1,34 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Header from '../components/Header';
-import { Grid, Bookmark, Settings } from 'lucide-react';
+import {Grid, Bookmark, Settings} from 'lucide-react';
 import apiService from "../service/apiService";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {getImageUrl} from "../service/commonService";
 
-const MyFeedPage = () => {
+const FeedDetail = () => {
     const [user, setUser] = useState(null);
     const [posts, setPosts] = useState([]);
     const [activeTab, setActiveTab] = useState('posts');
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate() ;
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadMyFeedData();
     }, []);
 
+
+    const {userId} = useParams();
+    const currentUser = JSON.parse(localStorage.getItem('user'));
     const loadMyFeedData = async () => {
         setLoading(true);
+
         try {
 
-            const currentUser = JSON.parse(localStorage.getItem('user'));
-            const userId = currentUser.userId;
+            console.log("클릭한 userID : ", userId);
 
             if (!userId) return navigate('/login');
 
-            setUser(currentUser);
 
-
-            const allPosts = await apiService.getUserPost(userId);
+            const allPosts = await apiService.getPost(userId);
             setPosts(allPosts);
             console.log(allPosts);
         } catch (error) {
@@ -38,17 +39,20 @@ const MyFeedPage = () => {
             setLoading(false);
         }
     }
-    if(loading){return <div>로딩중</div>}
+
+    if (loading) {
+        return <div>로딩중...</div>
+    }
     return (
         <div className="feed-container">
-            <Header type="feed" />
+            <Header type="feed"/>
 
             <main className="profile-wrapper">
                 <header className="profile-header">
                     <div className="profile-image-container">
                         <div className="profile-image-border">
                             <img
-                                src={getImageUrl(user.userAvatar)}
+                                src={getImageUrl(currentUser.userAvatar)}
                                 alt="profile"
                                 className="profile-image-large"
                             />
@@ -57,13 +61,14 @@ const MyFeedPage = () => {
 
                     <div className="profile-info-section">
                         <div className="profile-title-row">
-                            <h2 className="profile-username">{user.userName}</h2>
+                            <h2 className="profile-username">{currentUser.userName}</h2>
                             <div className="profile-actions">
                                 <button className="profile-edit-btn"
                                         onClick={
                                             () => navigate('/profile/edit')
                                         }
-                                >프로필 편집</button>
+                                >프로필 편집
+                                </button>
                                 <button className="profile-archive-btn">보관함 보기</button>
 
                             </div>
@@ -99,39 +104,21 @@ const MyFeedPage = () => {
                         className={`tab-btn ${activeTab === 'posts' ? 'active' : ''}`}
                         onClick={() => setActiveTab('posts')}
                     >
-                        <Grid size={12} /> 게시물
+                        <Grid size={12}/> 게시물
                     </button>
                     <button
                         className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`}
                         onClick={() => setActiveTab('saved')}
                     >
-                        <Bookmark size={12} /> 저장됨
+                        <Bookmark size={12}/> 저장됨
                     </button>
                 </div>
 
                 <div className="profile-posts-grid">
                     {posts.map((post) => (
-                        <div key={post.postId}
-                             className="grid-item"
-                             onClick={() => navigate(`/post/${post.postId}`)}
-                        >
-
-                            {/*
-                            이미지 위에 overlay 와 같은  효과가 덮어씌워진 상태로
-                              <div key={post.postId}
-                                 className="grid-item"
-                                 onClick={() => navigate(`/post/${post.postId}`)}
-                                >
-                                클릭 기능을 넣거나
-                            <div className="grid-hover-overlay"
-                            onClick={() => navigate(`/post/${post.postId}`)}
-                            >
-                            클릭 기능을 넣어주는 것이 좋다.
-                            */}
-                            <img src={post.postImage} alt="post" />
-                            <div className="grid-hover-overlay"
-
-                            ></div>
+                        <div key={post.postId} className="grid-item">
+                            <img src={post.postImage} alt="post"/>
+                            <div className="grid-hover-overlay"></div>
                         </div>
                     ))}
                 </div>
@@ -140,7 +127,7 @@ const MyFeedPage = () => {
     );
 };
 
-export default MyFeedPage;
+export default FeedDetail;
 
 /*
 불필요한 게시물을 모두 가져온 후 필터 작업을 진행해야하므로

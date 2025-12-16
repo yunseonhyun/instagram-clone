@@ -95,11 +95,16 @@ const apiService = {
         return res.data;
     },
 
-    getPost: async (userId) => {
-        const res = await api.get('/posts/' + userId);
+    // user or my 추가
+    getPost: async (postId) => {
+        const res = await api.get('/posts/' + postId);
         return res.data;
     },
-
+    // 단순 getPost 사용
+    getUserPost: async (userId) => {
+        const res = await api.get('/posts/user/' + userId);
+        return res.data;
+    },
     createPost: async (postImage, postCaption, postLocation) => {
         const formData = new FormData();
         formData.append('postImage', postImage);
@@ -119,41 +124,30 @@ const apiService = {
         // TODO: API 호출을 완성하세요
     },
 
-    // ===== 좋아요 API =====
-
-    // TODO: 좋아요 추가
-    // POST /posts/:postId/like
     addLike: async (postId) => {
         const res = await api.post(`/posts/${postId}/like`);
         return res.data;
     },
 
-    // TODO: 좋아요 취소
-    // DELETE /posts/:postId/like
     removeLike: async (postId) => {
         const res = await api.delete(`/posts/${postId}/like`);
         return res.data;
     },
 
     // ===== 댓글 API =====
-
-    // TODO: 댓글 목록 조회
-    // GET /posts/:postId/comments
     getComments: async (postId) => {
-        // TODO: API 호출을 완성하세요
+        const res = await api.get(`/posts/${postId}/comments`);
+        return res.data;
     },
-
-    // TODO: 댓글 작성
-    // POST /posts/:postId/comments
-    // body: { commentContent }
     createComment: async (postId, commentContent) => {
-        // TODO: API 호출을 완성하세요
+        const res = await api.post(`/posts/${postId}/comments`,{
+            commentContent: commentContent,
+        });
+        return res.data;
     },
-
-    // TODO: 댓글 삭제
-    // DELETE /comments/:commentId
     deleteComment: async (commentId) => {
-        // TODO: API 호출을 완성하세요
+        const res = await api.delete(`/comments/${commentId}`);
+        return res.data;
     },
 
     // ===== 스토리 API =====

@@ -37,6 +37,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public Post selectPostByPostId(int postId) {
+        return postMapper.selectPostByPostId(postId);
+    }
+
+    @Override
     public boolean createPost(MultipartFile postImage,
                               String postCaption,
                               String postLocation,

@@ -28,6 +28,14 @@
         ORDER BY created_at DESC
     </select>
 
+    <select id="selectPostByPostId"  resultType="Post">
+        SELECT
+            *
+        FROM post_detail_view
+        WHERE post_id = #{postId}
+    </select>
+
+
     <!-- 게시물 작성 -->
     <insert id="insertPost" parameterType="Post" useGeneratedKeys="true" keyProperty="postId" keyColumn="post_id">
         INSERT INTO posts (user_id, post_image, post_caption, post_location)

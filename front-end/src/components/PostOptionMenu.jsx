@@ -1,28 +1,29 @@
 import {useState} from "react";
 import {MoreHorizontal} from "lucide-react";
 
+
 const PostOptionMenu = ({post, currentUserId, onDelete}) => {
     const [showMenu, setShowMenu] = useState(false);
-    const isOwnPost = post.userId === currentUserId; //포스트 작성자와 로그인 유저가 같나요?
+    const isOwnPost = post.userId === currentUserId; //포스트작성자와 로그인유저가 같나요?
 
     const handleDelete = () => {
-        if(window.confirm('게시물을 삭제하시겠습니까?')){
+        if (window.confirm('게시물을 삭제하시겠습니까?')) {
             onDelete(post.postId);
             setShowMenu(false);
         }
     };
 
     const handleReport = () => {
-        alert("신고기능은 준비중입니다. 신고하기 전에.. 신고를 하지 않는 마음을 갖는 것은 어떨까요?");
+        alert("신고기능은 준비중입니다. 신고하기 전에.. 신고를 하지 않는 마음을 갖는 것은 어떨까요?^^");
         setShowMenu(false);
     };
 
-    if(!showMenu){
-        return(
+    if (!showMenu) {
+        return (
             <MoreHorizontal
-                className="post-menu-icon"
+                className="post-more-icon"
                 onClick={() => setShowMenu(true)}
-                />
+            />
         )
     }
 
@@ -44,8 +45,9 @@ const PostOptionMenu = ({post, currentUserId, onDelete}) => {
                     </button>
                 </div>
             </div>
+
         </>
-    );
-};
+    )
+}
 
 export default PostOptionMenu;

@@ -17,6 +17,8 @@ public interface PostService {
     // 특정 피드를 선택하여 피드 세부사항 조회
     Post getPostById(int postId, int currentUserId);
 
+    Post selectPostByPostId(int postId);
+
     boolean createPost(MultipartFile postImage, String postCaption, String postLocation , int currentUserId);
 
     boolean deletePost(int postId);

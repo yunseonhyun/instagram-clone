@@ -57,52 +57,62 @@ public class PostController {
         }
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<Post>> getAllPostsByUserId(@RequestHeader("Authorization") String authHeader,
-                                                          @PathVariable int userId){
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Post>> getAllPostsByUserId( @RequestHeader("Authorization") String authHeader,
+                                                           @PathVariable int userId) {
         try {
             String token = authHeader.substring(7);
             int currentUserId = jwtUtil.getUserIdFromToken(token);
 
             List<Post> posts = postService.getPostsByUserId(userId);
             return ResponseEntity.ok(posts);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
+    @GetMapping("/{postId}")
+    public ResponseEntity<Post> getAllPostsById( @RequestHeader("Authorization") String authHeader,
+                                                 @PathVariable int postId) {
+        try {
+            String token = authHeader.substring(7);
+            int currentUserId = jwtUtil.getUserIdFromToken(token);
 
-    @PostMapping("/{postId}/like")
+            Post post = postService.getPostById(postId, currentUserId);
+            return ResponseEntity.ok(post);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("{postId}/like")
     public ResponseEntity<Boolean> addLike(@PathVariable int postId,
-                                          @RequestHeader("Authorization") String authHeader) {
-
+                                           @RequestHeader("Authorization") String authHeader){
         try {
             String token = authHeader.substring(7);
             int currentUserId = jwtUtil.getUserIdFromToken(token);
 
             boolean result = postService.addLike(postId, currentUserId);
             return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            log.error("좋아요 추가 실패 : {}" + e.getMessage());
-            return ResponseEntity.badRequest().build();
+        } catch (Exception e)  {
+            log.error("좋아요 추가 실패 : {}", e.getMessage());
+            return ResponseEntity.badRequest().body(false);
         }
     }
 
-
-    @DeleteMapping("/{postId}/like")
+    @DeleteMapping("{postId}/like")
     public ResponseEntity<Boolean> removeLike(@PathVariable int postId,
-                                           @RequestHeader("Authorization") String authHeader) {
-
+                                              @RequestHeader("Authorization") String authHeader){
         try {
             String token = authHeader.substring(7);
             int currentUserId = jwtUtil.getUserIdFromToken(token);
 
             boolean result = postService.removeLike(postId, currentUserId);
             return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            log.error("좋아요 취소 실패 : {}" + e.getMessage());
+        } catch (Exception e)  {
+            log.error("좋아요 취소 실패 : {}", e.getMessage());
             return ResponseEntity.badRequest().body(false);
         }
     }
-
 }
