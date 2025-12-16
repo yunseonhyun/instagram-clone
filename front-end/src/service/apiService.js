@@ -1,9 +1,18 @@
 import axios from 'axios';
 
-export const API_BASE_URL = 'http://15.134.141.236:9000/api';
+
+// export const API_BASE_URL = 'http://15.134.141.236:9000/api';
+const BASE_URL = '/api';
+
+/*const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+});*/
 
 const api = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     }
