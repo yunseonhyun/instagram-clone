@@ -18,7 +18,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
  * 스프링부트에서 자체적으로 관리하라고 넘기는 어노테이션
  */
 @Configuration
-public class SecurityConfig {
+public class  SecurityConfig {
 
 
     @Bean
