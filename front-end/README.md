@@ -1,70 +1,162 @@
-# Getting Started with Create React App
+# 트러블 슈팅
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 📌 User Feed 페이지 성능 개선 (시간 복잡도 최적화)
 
-## Available Scripts
+## 문제점
 
-In the project directory, you can run:
+기존 UserFeed 페이지는 **전체 게시물을 조회한 뒤, 클라이언트에서 필터링**하는 방식으로 구현되어 있었습니다.
 
-### `npm start`
+```javascript
+// 전체 게시물 가져오기
+const allPosts = await apiService.getPosts();
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+// 내 게시물만 필터링
+const myPosts = allPosts.filter(post => post.userId !== userId);
+setPosts(myPosts);
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+이 방식은 다음과 같은 성능 문제가 있었습니다:
 
-### `npm test`
+* 불필요하게 모든 게시물을 가져와 네트워크 사용량 증가
+* 게시물이 많아질수록 클라이언트 필터링 비용(O(n)) 증가
+* 데이터 증가에 따른 전체적인 응답 속도 저하
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 개선 내용
 
-### `npm run build`
+백엔드에 이미 제공되던 getUserPost(userId) API를 활용하여,
+클라이언트에서 전체 게시물을 가져오지 않고 필요한 게시물만 요청하도록 변경했습니다.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 변경 후 코드
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```javascript
+// 유저 아이디를 기반으로 게시물 가져오기
+const myPosts = await apiService.getUserPost(userId);
+setPosts(myPosts);
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 결과
 
-### `npm run eject`
+* 클라이언트 필터링 제거 → 서버에서 즉시 필터링
+* 네트워크 비용 감소 (전체 게시물 → 내 게시물만 요청)
+* My Feed 페이지 로딩 속도 향상
+* 클라이언트 코드 단순화 및 유지 보수성 증가
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 요약
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+전체 게시물을 받아 클라이언트에서 필터링하던 구조를, 백엔드 userId 기반 필터링 API(getUserPost)를 활용하는 방식으로 개선하여
+시간 복잡도와 네트워크 비용을 모두 최적화했습니다.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# 📌 Invalid CORS request 오류 해결
 
-## Learn More
+## 문제점
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+프론트엔드에서 백엔드 API 호출 시 다음과 같은 오류가 발생했습니다.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+Invalid CORS request
+```
 
-### Code Splitting
+로컬/배포 환경에서 프론트엔드와 백엔드 도메인이 달라지면서,
+브라우저의 CORS 정책에 의해 요청이 차단되었습니다.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## 원인
 
-### Analyzing the Bundle Size
+* 백엔드(Spring Security)에 CORS 설정 누락
+* 허용되지 않은 Origin에서 API 요청 발생
+* Preflight(OPTIONS) 요청이 차단됨
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 개선 내용
 
-### Making a Progressive Web App
+백엔드 보안 설정에서 CORS 정책을 명시적으로 허용하고,
+프론트엔드에서 사용하는 Origin과 HTTP 메서드를 등록했습니다.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 결과
 
-### Advanced Configuration
+* 프론트엔드 → 백엔드 API 정상 통신
+* 인증/비인증 요청 모두 CORS 오류 제거
+* 배포 환경에서도 동일한 설정으로 안정적인 호출 가능
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 요약
 
-### Deployment
+CORS 오류의 원인을 브라우저 보안 정책 관점에서 파악하고,
+백엔드에서 명시적인 CORS 허용 설정을 통해 문제를 해결했습니다.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+---
 
-### `npm run build` fails to minify
+# 📌 React 무한 렌더링 문제 해결
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 문제점
+
+특정 페이지 진입 시 화면이 멈추거나,
+콘솔에 지속적인 렌더링 로그가 출력되는 문제가 발생했습니다.
+
+## 원인
+
+* useEffect 내부에서 상태를 변경하면서
+* 의존성 배열에 해당 상태가 포함되어 무한 루프 발생
+
+```javascript
+useEffect(() => {
+  setData(fetchData());
+}, [data]); // data 변경 → 다시 useEffect 실행
+```
+
+## 개선 내용
+
+* useEffect 의존성 배열을 재정의
+* 상태 변경이 필요한 경우 조건문으로 렌더링 제어
+
+```javascript
+useEffect(() => {
+  fetchData();
+}, []); // 최초 1회만 실행
+```
+
+## 결과
+
+* 무한 렌더링 제거
+* 페이지 정상 로딩
+* 렌더링 횟수 감소로 성능 개선
+
+## 요약
+
+React 훅의 실행 조건을 명확히 분리하여,
+불필요한 상태 변경과 렌더링 루프를 제거했습니다.
+
+---
+
+# 📌 API Base URL 설정 오류 수정
+
+## 문제점
+
+배포 환경에서도 API 요청이 `localhost`로 전송되어
+백엔드와 통신이 되지 않는 문제가 발생했습니다.
+
+```javascript
+export const API_BASE_URL = 'http://localhost:9000/api';
+```
+
+## 원인
+
+* 환경별(API 서버 주소) 분리가 되어 있지 않음
+* 빌드 결과물에 로컬 주소가 그대로 포함됨
+
+## 개선 내용
+
+환경 변수(.env)를 사용하여 API Base URL을 분리하고,
+배포 환경에서는 실제 서버 주소를 사용하도록 수정했습니다.
+
+## 결과
+
+* 로컬 / 배포 환경 모두 정상 동작
+* 환경 변경 시 코드 수정 없이 설정만 변경 가능
+* 배포 안정성 향상
+
+## 요약
+
+API 서버 주소를 환경 변수로 분리하여,
+환경 의존적인 오류를 제거하고 배포 유연성을 확보했습니다.
+
+---
